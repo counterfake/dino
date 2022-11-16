@@ -30,6 +30,8 @@ import torch.nn.functional as F
 from torchvision import datasets, transforms
 from torchvision import models as torchvision_models
 
+import wandb
+
 import utils
 import vision_transformer as vits
 from vision_transformer import DINOHead
@@ -122,10 +124,14 @@ def get_args_parser():
     parser.add_argument('--output_dir', default=".", type=str, help='Path to save logs and checkpoints.')
     parser.add_argument('--saveckp_freq', default=20, type=int, help='Save checkpoint every x epochs.')
     parser.add_argument('--seed', default=0, type=int, help='Random seed.')
+    parser.add_argument('--version', type=str, required=True, help='Please provide a version name.')
     parser.add_argument('--num_workers', default=10, type=int, help='Number of data loading workers per GPU.')
     parser.add_argument("--dist_url", default="env://", type=str, help="""url used to set up
         distributed training; see https://pytorch.org/docs/stable/distributed.html""")
     parser.add_argument("--local_rank", default=0, type=int, help="Please ignore and do not set this argument.")
+    
+    # Wandb
+    parser.add_argument('--wandb_config', type=str, help='Please specify wandb option.')
     return parser
 
 
@@ -293,6 +299,12 @@ def train_dino(args):
         if utils.is_main_process():
             with (Path(args.output_dir) / "log.txt").open("a") as f:
                 f.write(json.dumps(log_stats) + "\n")
+        if args.wandb_config:
+            wandb.log({
+                "train_loss": train_stats["loss"],
+                "train_lr": train_stats["lr"],
+                "train_wd": train_stats["wd"]
+            })
     total_time = time.time() - start_time
     total_time_str = str(datetime.timedelta(seconds=int(total_time)))
     print('Training time {}'.format(total_time_str))
@@ -468,4 +480,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser('DINO', parents=[get_args_parser()])
     args = parser.parse_args()
     Path(args.output_dir).mkdir(parents=True, exist_ok=True)
+    model_name = f"arch-{args.arch}"
+    if args.version: model_name += "_v-{}".format(args.version)
+    if args.wandb_config: wandb.init(project = "dino", entity = args.wandb_entity, name = model_name, config = args)
     train_dino(args)
