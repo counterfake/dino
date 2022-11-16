@@ -482,5 +482,5 @@ if __name__ == '__main__':
     Path(args.output_dir).mkdir(parents=True, exist_ok=True)
     model_name = f"arch-{args.arch}"
     if args.version: model_name += "_v-{}".format(args.version)
-    if args.wandb_config: wandb.init(project = "dino", entity = args.wandb_entity, name = model_name, config = args)
+    if args.wandb_config: wandb.init(project = "dino", entity = args.wandb_config, name = model_name, config = args)
     train_dino(args)
