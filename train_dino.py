@@ -189,7 +189,7 @@ def train_dino(args):
             embed_dim=args.embed_dim,
             drop_path_rate=args.drop_path_rate,  # stochastic depth
         )
-        teacher = vits.__dict__[args.arch](patch_size=args.patch_size, embed_dim=args.embed_size)
+        teacher = vits.__dict__[args.arch](patch_size=args.patch_size, embed_dim=args.embed_dim)
         embed_dim = student.embed_dim
     # if the network is a XCiT
     elif args.arch in torch.hub.list("facebookresearch/xcit:main"):
