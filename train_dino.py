@@ -186,7 +186,7 @@ def train_dino(args):
     if args.arch in vits.__dict__.keys():
         student = vits.__dict__[args.arch](
             patch_size=args.patch_size,
-            embed_dim=args.embed_size,
+            embed_dim=args.embed_dim,
             drop_path_rate=args.drop_path_rate,  # stochastic depth
         )
         teacher = vits.__dict__[args.arch](patch_size=args.patch_size, embed_dim=args.embed_size)
